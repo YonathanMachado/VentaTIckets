@@ -1,0 +1,8 @@
+CREATE TABLE recintos (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    nombre VARCHAR(100) NOT NULL,
+    direccion VARCHAR(255) NOT NULL,
+    ciudad VARCHAR(100) NOT NULL,
+    capacidad_maxima INT NOT NULL,
+    estado VARCHAR(20) DEFAULT 'ACTIVO'
+);
