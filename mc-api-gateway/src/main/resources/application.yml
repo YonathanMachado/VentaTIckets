@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: mc-api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        # Microservicio Eventos (puerto 8081)
+        - id: ms-eventos
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/eventos/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Recintos (puerto 8082)
+        - id: ms-recintos
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/recintos/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Tickets (puerto 8083)
+        - id: ms-tickets
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/tickets/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Ventas (puerto 8084)
+        - id: ms-ventas
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/ventas/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Validacion (puerto 8085)
+        - id: ms-validacion
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/validacion/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Artistas (puerto 8086)
+        - id: ms-artistas
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/artistas/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Streaming (puerto 8087)
+        - id: ms-streaming
+          uri: http://localhost:8087
+          predicates:
+            - Path=/api/streaming/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Devoluciones (puerto 8088)
+        - id: ms-devoluciones
+          uri: http://localhost:8088
+          predicates:
+            - Path=/api/devoluciones/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Promotores (puerto 8089)
+        - id: ms-promotores
+          uri: http://localhost:8089
+          predicates:
+            - Path=/api/promotores/**
+          filters:
+            - StripPrefix=0
+
+        # Microservicio Preventa (puerto 8090)
+        - id: ms-preventa
+          uri: http://localhost:8090
+          predicates:
+            - Path=/api/preventa/**
+          filters:
+            - StripPrefix=0
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, gateway
+  endpoint:
+    gateway:
+      enabled: true

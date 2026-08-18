@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: Streaming
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_streaming?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  flyway:
+    enabled: false
+
+server:
+  port: 8087
+
+servicio:
+  eventos:
+    url: http://localhost:8081/api/eventos

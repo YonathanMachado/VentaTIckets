@@ -1,0 +1,196 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-ventaTickets
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_USER: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ventatickets-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms-eventos:
+    build: ./Eventos
+    container_name: ms-eventos
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_eventos?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ventatickets-net
+
+  ms-recintos:
+    build: ./Recintos
+    container_name: ms-recintos
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_recintos?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ventatickets-net
+
+  ms-tickets:
+    build: ./Tickets
+    container_name: ms-tickets
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_tickets?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SERVICIO_EVENTOS_URL: http://ms-eventos:8081/api/eventos
+    depends_on:
+      - ms-eventos
+    networks:
+      - ventatickets-net
+
+  ms-ventas:
+    build: ./Ventas
+    container_name: ms-ventas
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_ventas?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SERVICIO_TICKETS_URL: http://ms-tickets:8083/api/tickets
+    depends_on:
+      - ms-tickets
+    networks:
+      - ventatickets-net
+
+  ms-validacion:
+    build: ./Validacion
+    container_name: ms-validacion
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_validacion?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SERVICIO_TICKETS_URL: http://ms-tickets:8083/api/tickets
+    depends_on:
+      - ms-tickets
+    networks:
+      - ventatickets-net
+
+  ms-artistas:
+    build: ./Artistas
+    container_name: ms-artistas
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_artistas?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ventatickets-net
+
+  ms-streaming:
+    build: ./Streaming
+    container_name: ms-streaming
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_streaming?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SERVICIO_EVENTOS_URL: http://ms-eventos:8081/api/eventos
+    depends_on:
+      - ms-eventos
+    networks:
+      - ventatickets-net
+
+  ms-devoluciones:
+    build: ./Devoluciones
+    container_name: ms-devoluciones
+    ports:
+      - "8088:8088"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_devoluciones?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SERVICIO_TICKETS_URL: http://ms-tickets:8083/api/tickets
+    depends_on:
+      - ms-tickets
+    networks:
+      - ventatickets-net
+
+  ms-promotores:
+    build: ./Promotores
+    container_name: ms-promotores
+    ports:
+      - "8089:8089"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_promotores?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ventatickets-net
+
+  ms-preventa:
+    build: ./Preventa
+    container_name: ms-preventa
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_preventa?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SERVICIO_EVENTOS_URL: http://ms-eventos:8081/api/eventos
+    depends_on:
+      - ms-eventos
+    networks:
+      - ventatickets-net
+
+  mc-api-gateway:
+    build: ./mc-api-gateway
+    container_name: mc-api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ms-eventos
+      - ms-recintos
+      - ms-tickets
+      - ms-ventas
+      - ms-validacion
+      - ms-artistas
+      - ms-streaming
+      - ms-devoluciones
+      - ms-promotores
+      - ms-preventa
+    networks:
+      - ventatickets-net
+
+networks:
+  ventatickets-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
